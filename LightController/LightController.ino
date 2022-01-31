@@ -23,6 +23,10 @@ void loop() {
     clickEvent();
   } else if (b == 2) {
     doubleClickEvent();
+  } else if (b == 3) {
+    holdEvent();
+  } else if (b == 4) {
+    longHoldEvent();
   }
 }
 
@@ -36,4 +40,10 @@ void doubleClickEvent() {
   digitalWrite(BLUE_LED, HIGH);
   delay(100);
   digitalWrite(BLUE_LED, LOW);
+}
+
+void holdEvent() {
+  digitalWrite(GREEN_LED, HIGH);
+  delay(100);
+  digitalWrite(GREEN_LED, LOW);
 }
