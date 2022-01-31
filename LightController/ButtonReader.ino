@@ -1,46 +1,62 @@
 int debounce = 20; // debounce period to prevent flickering
 int doubleClickGap = 250; // max time between double click
-int holdTime = 1000; // time for hold event
+int holdTime = 1000; // min time for hold event
 
 boolean currentButtonState = HIGH;
 boolean previousButtonState = HIGH;
 
+boolean waitingForDoubleClick = false;
+boolean isDoubleClick = false;
+boolean ignoreRelease = false;
+
 long downTime = -1; // time when button was pressed
 long upTime = -1; // time when button was released
 
-int clickCounter = 0;
-
 int readButton() {
   int event = 0;
-  // we return  1, for normal click
-  //            2, for double click
-  //            3, for long hold
-  //            0, else
-  
+  // return value 1, for single click
+  //              2, for double click
+  //              3, for click + hold
+  //              0, else
+
   currentButtonState = digitalRead(BUTTON);
 
   if (currentButtonState == HIGH && previousButtonState == LOW && (millis() - upTime) > debounce) {
     // button press
     downTime = millis();
-    if ((millis() - upTime) < doubleClickGap) {
-      clickCounter++;
+    if ((millis() - upTime) < doubleClickGap && !isDoubleClick && waitingForDoubleClick) {
+      isDoubleClick = true;
     } else {
-      clickCounter = 1;
+      isDoubleClick = false;
     }
+    waitingForDoubleClick = false;
+    ignoreRelease = false;
   } else if (currentButtonState == LOW && previousButtonState == HIGH && (millis() - downTime) > debounce) {
     // button release
-    upTime = millis();
-    event = clickCounter;
+    if (!ignoreRelease) {
+      upTime = millis();
+      if (!isDoubleClick) {
+        waitingForDoubleClick = true;
+      } else {
+        waitingForDoubleClick = false;
+        isDoubleClick = false;
+        event = 2;
+      }
+    }
   }
 
-  // check for normal or double click
-  if (currentButtonState == LOW && (millis() - upTime) >= doubleClickGap && event != 0) {
-    clickCounter = 0;
+  // check if click can be registered as single click
+  if (currentButtonState == LOW && (millis() - upTime) >= doubleClickGap && waitingForDoubleClick && !isDoubleClick) {
+    waitingForDoubleClick = false;
     event = 1;
   }
 
-  // check for hold events
+  // check for hold event
   if (currentButtonState == HIGH && (millis() - downTime) >= holdTime) {
+    downTime = millis();
+    waitingForDoubleClick = false;
+    isDoubleClick = false;
+    ignoreRelease = true;
     event = 3;
   }
 
