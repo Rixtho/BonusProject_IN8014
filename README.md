@@ -1,6 +1,6 @@
 # Bonus Project for Embedded Systems (IN8014)
 
-![Arduino circuit diagram](./resources/ArduinoCircuit.png "Circuit Diagram")
+![Aninmated Arduino Circuit Diagram](./resources/ArduinoCircuitRunning.gif "Animated Circuit Diagram")
 
 Our little controller turns the light on and off when clicking once, changes the color when double clicking, and changes the light animation when holding the button down for at least one second.
 

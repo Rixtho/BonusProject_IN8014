@@ -35,14 +35,12 @@ int readButton() {
     }
   }
 
-  // check if click can be registered as single click
   if (currentButtonState == LOW && (millis() - upTime) >= doubleClickGap && waitingForDoubleClick) {
+    // check if previous click can be registered as single click
     waitingForDoubleClick = false;
     event = 1;
-  }
-
-  // check for hold event
-  if (currentButtonState == HIGH && (millis() - downTime) >= holdTime) {
+  } else if (currentButtonState == HIGH && (millis() - downTime) >= holdTime) {
+    // check for hold event
     downTime = millis(); // this way a longer hold will trigger a hold event every second
     waitingForDoubleClick = false;
     ignoreNextRelease = true;
