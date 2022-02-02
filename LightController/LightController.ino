@@ -4,8 +4,12 @@ const int YELLOW_LED = 48;
 const int BLUE_LED = 31;
 const int BUTTON = 45;
 
-const int standardDelay = 50;
-const int longDelay = 125;
+const int standardDelay = 100;
+const int longDelay = 200;
+
+int lastBlinkTime = -1;
+
+int sosIt = 0;
 
 enum Color {
   RED, GREEN, YELLOW, BLUE
@@ -15,8 +19,6 @@ enum Mode {
   STATIC, BLINKING, SOS, DISCO1, DISCO2, OFF
 } lightMode = OFF;
 
-int sosIt = 0;
-
 void setup() {
   Serial.begin(9600);
   pinMode(RED_LED, OUTPUT);
@@ -24,6 +26,8 @@ void setup() {
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(BLUE_LED, OUTPUT);
   pinMode(BUTTON, INPUT);
+
+  turnLightsOff();
 }
 
 void loop() {
@@ -32,49 +36,65 @@ void loop() {
     toggleLight();
   } else if (lightMode != OFF && b == 2) { // double click
     switchColor();
+    turnLightsOff();
   } else if (lightMode != OFF && b == 3) { // click + hold
     switchLightMode();
+    turnLightsOff();
   }
   updateLEDs();
 }
 
 void updateLEDs() {
   int ledPin = getLEDPin(lightColor);
-
+  int currentTime = millis();
   if (lightMode == STATIC) {
-    turnLightsOff();
     digitalWrite(ledPin, HIGH);
   } else if (lightMode == BLINKING) {
-    blink(ledPin, standardDelay);
+    if (currentTime - lastBlinkTime > standardDelay) {
+      lastBlinkTime = currentTime;
+      digitalWrite(ledPin, !digitalRead(ledPin));
+    }
   } else if (lightMode == SOS) {
     int sosPart = sosIt / 3;
     if (sosIt == 9) {
-      sosIt = -1;
-      delay(longDelay);
+      if (currentTime - lastBlinkTime > 3 * longDelay) {
+        sosIt = 0;
+      }
     } else if (sosPart % 2 == 0) {
-      blink(ledPin, standardDelay);
+      if (currentTime - lastBlinkTime > standardDelay) {
+        lastBlinkTime = currentTime;
+        digitalWrite(ledPin, !digitalRead(ledPin));
+        if (digitalRead(ledPin) == LOW) {
+          sosIt++;
+        }
+      }
     } else {
-      blink(ledPin, longDelay);
+      if (currentTime - lastBlinkTime > longDelay) {
+        lastBlinkTime = currentTime;
+        digitalWrite(ledPin, !digitalRead(ledPin));
+        if (digitalRead(ledPin) == LOW) {
+          sosIt++;
+        }
+      }
     }
-    sosIt++;
   } else if (lightMode == DISCO1) {
-    blink(ledPin, standardDelay);
-    switchColor();
+    if (currentTime - lastBlinkTime > standardDelay) {
+      lastBlinkTime = currentTime;
+      digitalWrite(ledPin, !digitalRead(ledPin));
+      if (digitalRead(ledPin) == LOW) {
+        switchColor();
+      }
+    }
   } else if (lightMode == DISCO2) {
-    digitalWrite(ledPin, !digitalRead(ledPin));
-    delay(100);
-    switchColor();
+    if (currentTime - lastBlinkTime > standardDelay) {
+      lastBlinkTime = currentTime;
+      digitalWrite(ledPin, !digitalRead(ledPin));
+      switchColor();
+    }
   } else {
     turnLightsOff();
     lightColor = BLUE;
   }
-}
-
-void blink(int ledPin, int delayTime) {
-  digitalWrite(ledPin, HIGH);
-  delay(delayTime);
-  digitalWrite(ledPin, LOW);
-  delay(delayTime);
 }
 
 void turnLightsOff() {
