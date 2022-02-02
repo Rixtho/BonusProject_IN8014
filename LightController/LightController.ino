@@ -1,8 +1,8 @@
-const int RED_LED = 40;
-const int GREEN_LED = 22;
-const int YELLOW_LED = 48;
-const int BLUE_LED = 31;
-const int BUTTON = 45;
+const int RED_LED = 30;
+const int GREEN_LED = 31;
+const int YELLOW_LED = 32;
+const int BLUE_LED = 33;
+const int BUTTON = 2;
 
 const int standardDelay = 100;
 const int longDelay = 200;

@@ -16,7 +16,7 @@ int readButton() {
   // return value 1, for single click
   //              2, for double click
   //              3, for click + hold
-  //              0, else
+  //              0, if nothing happened
 
   currentButtonState = digitalRead(BUTTON);
 
@@ -28,12 +28,10 @@ int readButton() {
     // button release
     if (!ignoreRelease) {
       upTime = millis();
-      if (!waitingForDoubleClick) {
-        waitingForDoubleClick = true;
-      } else {
-        waitingForDoubleClick = false;
+      if (waitingForDoubleClick) {
         event = 2;
       }
+      waitingForDoubleClick = !waitingForDoubleClick;
     }
   }
 
@@ -45,7 +43,7 @@ int readButton() {
 
   // check for hold event
   if (currentButtonState == HIGH && (millis() - downTime) >= holdTime) {
-    downTime = millis();
+    downTime = millis(); // this way a hold for 2 seconds will trigger two hold events
     waitingForDoubleClick = false;
     ignoreRelease = true;
     event = 3;
