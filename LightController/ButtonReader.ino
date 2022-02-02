@@ -6,7 +6,7 @@ boolean currentButtonState = HIGH;
 boolean previousButtonState = HIGH;
 
 boolean waitingForDoubleClick = false;
-boolean ignoreRelease = false;
+boolean ignoreNextRelease = false;
 
 long downTime = -1; // time when button was pressed
 long upTime = -1; // time when button was released
@@ -23,10 +23,10 @@ int readButton() {
   if (currentButtonState == HIGH && previousButtonState == LOW && (millis() - upTime) > debounce) {
     // button press
     downTime = millis();
-    ignoreRelease = false;
+    ignoreNextRelease = false;
   } else if (currentButtonState == LOW && previousButtonState == HIGH && (millis() - downTime) > debounce) {
     // button release
-    if (!ignoreRelease) {
+    if (!ignoreNextRelease) {
       upTime = millis();
       if (waitingForDoubleClick) {
         event = 2;
@@ -43,9 +43,9 @@ int readButton() {
 
   // check for hold event
   if (currentButtonState == HIGH && (millis() - downTime) >= holdTime) {
-    downTime = millis(); // this way a hold for 2 seconds will trigger two hold events
+    downTime = millis(); // this way a longer hold will trigger a hold event every second
     waitingForDoubleClick = false;
-    ignoreRelease = true;
+    ignoreNextRelease = true;
     event = 3;
   }
 
