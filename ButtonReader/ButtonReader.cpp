@@ -1,24 +1,19 @@
-int debounce = 20; // debounce period to prevent flickering
-int doubleClickGap = 250; // max time between double click
-int holdTime = 1000; // min time for hold event
+#include <Arduino.h>
+#include <ButtonReader.h>
 
-boolean currentButtonState = LOW;
-boolean previousButtonState = LOW;
+void ButtonReader::init(int _buttonPin) {
+  buttonPin = _buttonPin;
+  currentButtonState = LOW;
+  previousButtonState = LOW;
+  waitingForDoubleClick = false;
+  ignoreNextRelease = false;
+  downTime = -1;
+  upTime = -1;
+}
 
-boolean waitingForDoubleClick = false;
-boolean ignoreNextRelease = false;
-
-long downTime = -1; // time when button was pressed
-long upTime = -1; // time when button was released
-
-int readButton() {
+int ButtonReader::readButton() {
   int event = 0;
-  // return value 1, for single click
-  //              2, for double click
-  //              3, for click + hold
-  //              0, if nothing happened
-
-  currentButtonState = digitalRead(BUTTON);
+  currentButtonState = digitalRead(buttonPin);
 
   if (currentButtonState == HIGH && previousButtonState == LOW && (millis() - upTime) > debounce) {
     // button press

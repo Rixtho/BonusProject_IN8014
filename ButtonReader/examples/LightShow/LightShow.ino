@@ -1,3 +1,5 @@
+#include <ButtonReader.h>
+
 const int RED_LED = 30;
 const int GREEN_LED = 31;
 const int YELLOW_LED = 32;
@@ -8,7 +10,6 @@ const int standardDelay = 100;
 const int longDelay = 200;
 
 int lastBlinkTime = -1;
-
 int sosIt = 0;
 
 enum Color {
@@ -19,25 +20,27 @@ enum Mode {
   STATIC, BLINKING, SOS, DISCO1, DISCO2, OFF
 } lightMode = OFF;
 
+ButtonReader buttonReader;
+
 void setup() {
-  Serial.begin(9600);
   pinMode(RED_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(BLUE_LED, OUTPUT);
   pinMode(BUTTON, INPUT);
 
+  buttonReader.init(BUTTON);
   turnLightsOff();
 }
 
 void loop() {
-  int b = readButton();
-  if (b == 1) { // single click
+  int clickEvent = buttonReader.readButton();
+  if (clickEvent == CLICK) {
     toggleLight();
-  } else if (lightMode != OFF && b == 2) { // double click
+  } else if (clickEvent == DOUBLECLICK && lightMode != OFF) {
     switchColor();
     turnLightsOff();
-  } else if (lightMode != OFF && b == 3) { // click + hold
+  } else if (clickEvent == HOLD && lightMode != OFF) {
     switchLightMode();
     turnLightsOff();
   }
