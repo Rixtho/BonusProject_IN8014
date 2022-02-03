@@ -2,8 +2,8 @@ int debounce = 20; // debounce period to prevent flickering
 int doubleClickGap = 250; // max time between double click
 int holdTime = 1000; // min time for hold event
 
-boolean currentButtonState = HIGH;
-boolean previousButtonState = HIGH;
+boolean currentButtonState = LOW;
+boolean previousButtonState = LOW;
 
 boolean waitingForDoubleClick = false;
 boolean ignoreNextRelease = false;
